@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const path = require('path');
 const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
 const auth = require('../middlewares/auth');
 
 const {
@@ -17,10 +18,12 @@ router.route('/cards')
   .post(auth, celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
-      link: Joi.string().required().pattern(
-      // eslint-disable-next-line no-useless-escape
-        new RegExp('^(https?:/{2})?((([a-z0-9_-]{0,32}(:[a-z0-9_-]{1,32})?)(([a-z0-9-]{1,128}\.)+([a-z]{2,11})))|(((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)))(:(\d{1,4}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5]))?((/(\w+[_#%&?=-]?(\w+)?)+/?)*|/)?$'),
-      ),
+      link: Joi.string().required().custom((value) => {
+        if (!validator.isURL(value)) {
+          throw new Error('string is not URL');
+        }
+        return true;
+      }, 'URL validation'),
     }),
   }), createCard);
 router.route('/cards/:cardId/likes')

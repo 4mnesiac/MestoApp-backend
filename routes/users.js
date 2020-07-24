@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const path = require('path');
 const { celebrate, Joi } = require('celebrate');
+const validator = require('validator');
 const auth = require('../middlewares/auth');
 
 const {
@@ -24,10 +25,12 @@ router.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().required().pattern(
-      // eslint-disable-next-line no-useless-escape
-      new RegExp('^(https?:\/{2})?(([a-z0-9_-]{0,63})(([a-z0-9-]{1,128}\.)+([a-z]{2,11})))(\/(([0-9a-zA-Zа-яЁА-ЯЁ_.#%&?=-]+)?\/?)*[.](jpg|jpeg|gif|png))?$'),
-    ),
+    avatar: Joi.string().required().custom((value) => {
+      if (!validator.isURL(value)) {
+        throw new Error('string is not URL');
+      }
+      return true;
+    }, 'URL validation'),
     email: Joi.string().required().email(),
     password: Joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{8,30}$')),
   }),
