@@ -25,11 +25,7 @@ router.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
-    avatar: Joi.string().required().custom((value) => {
-      if (!validator.isURL(value)) {
-        throw new Error('string is not URL');
-      }
-      return true;
+    avatar: Joi.string().required(),
     }, 'URL validation'),
     email: Joi.string().required().email(),
     password: Joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{8,30}$')),

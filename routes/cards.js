@@ -18,12 +18,7 @@ router.route('/cards')
   .post(auth, celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
-      link: Joi.string().required().custom((value) => {
-        if (!validator.isURL(value)) {
-          throw new Error('string is not URL');
-        }
-        return true;
-      }, 'URL validation'),
+      link: Joi.string().required(),
     }),
   }), createCard);
 router.route('/cards/:cardId/likes')
