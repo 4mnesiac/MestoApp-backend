@@ -9,6 +9,7 @@ const { errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const all = require('./routes/all');
 const error = require('./middlewares/errors');
 
 const { PORT = 3000 } = process.env;
@@ -40,6 +41,7 @@ app.get('/crash-test', () => {
 });
 app.use('/', users);
 app.use('/', cards);
+app.use('/', all);
 
 app.use(errorLogger);
 app.use(errors());
