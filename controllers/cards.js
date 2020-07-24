@@ -1,10 +1,8 @@
 const path = require('path');
 // eslint-disable-next-line import/no-dynamic-require
 const Card = require(path.join('..', 'models', 'card'));
-const customError = new Error();
 const NotFoundError = require('../errors/not-found-error');
 const AuthError = require('../errors/auth-error');
-const BadRequestError = require('../errors/bad-request-error');
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params)
