@@ -5,11 +5,11 @@
 
 ### Ссылки на проект
 
-Публичный ip проекта: [84.201.169.112](84.201.169.112)
+Публичный ip проекта: 84.201.169.112
 
-Фронтенд: [https://nhance.tk](http://nhance.tk)
+Фронтенд: [https://nhance.tk](https://nhance.tk)
 
-Запросы к API по адресу http://api.nhance.tk
+Запросы к API по адресу https://api.nhance.tk
 
 
 ### Версии
