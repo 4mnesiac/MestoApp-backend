@@ -16,25 +16,26 @@ module.exports.login = (req, res, next) => {
   try {
     if (!email || !password) {
       throw new BadRequestError('Не указан email или пароль');
+    } else {
+      User.findUserByCredentials(email, password)
+        .then((user) => {
+          const token = jwt.sign(
+            { _id: user._id },
+            NODE_ENV === 'production' ? JWT_SECRET : JWT_DEV_SECRET,
+            { expiresIn: '7d' },
+          );
+          res
+            .cookie('jwt', token, {
+              maxAge: 3600 * 1000 * 24 * 7,
+              httpOnly: true,
+              sameSite: true,
+            })
+            .status(200)
+            .send({ message: 'Авторизация успешна!' });
+        }).catch(() => {
+          next(new AuthError('Ошибка авторизации'));
+        });
     }
-    return User.findUserByCredentials(email, password)
-      .then((user) => {
-        const token = jwt.sign(
-          { _id: user._id },
-          NODE_ENV === 'production' ? JWT_SECRET : JWT_DEV_SECRET,
-          { expiresIn: '7d' },
-        );
-        res
-          .cookie('jwt', token, {
-            maxAge: 3600 * 1000 * 24 * 7,
-            httpOnly: true,
-            sameSite: true,
-          })
-          .status(200)
-          .send({ message: 'Авторизация успешна!' });
-      }).catch(() => {
-        next(new AuthError('Ошибка авторизации'));
-      });
   } catch (error) {
     next(error);
   }
@@ -62,40 +63,37 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  try {
-    if (!password || password.length < 8) {
-      throw new BadRequestError('Пароль должен состоять из латинских букв и цифр, длиной от 8 до 30 символов');
-    } else {
-      bcrypt.hash(password, 10)
-        .then((hash) => User.create({
+
+  if (!password || password.length < 8) {
+    throw new BadRequestError('Пароль должен состоять из латинских букв и цифр, длиной от 8 до 30 символов');
+  } else {
+    bcrypt.hash(password, 10)
+      .then((hash) => User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }))
+      .then(() => res.send({
+        message: `Пользователь ${name} успешно создан`,
+        data: {
           name,
           about,
           avatar,
           email,
-          password: hash,
-        }))
-        .then(() => res.send({
-          message: `Пользователь ${name} успешно создан`,
-          data: {
-            name,
-            about,
-            avatar,
-            email,
-          },
-        }))
-        .catch((err) => {
-          if (err.errors.email && err.errors.email.kind === 'unique') {
-            customError.statusCode = 409;
-            customError.name = 'Conflict';
-            customError.message = 'Пользователь с таким id уже существует';
-            next(customError);
-          } else {
-            next(err);
-          }
-        });
-    }
-  } catch (error) {
-    next(error);
+        },
+      }))
+      .catch((err) => {
+        if (err.errors.email && err.errors.email.kind === 'unique') {
+          customError.statusCode = 409;
+          customError.name = 'Conflict';
+          customError.message = 'Пользователь с таким id уже существует';
+          next(customError);
+        } else {
+          next(err);
+        }
+      });
   }
 };
 

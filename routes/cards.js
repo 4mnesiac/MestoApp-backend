@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const path = require('path');
+const { ObjectId } = require('mongoose').Types;
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 const auth = require('../middlewares/auth');
@@ -22,19 +23,29 @@ router.route('/cards')
         if (!validator.isURL(value)) {
           throw new Error('string is not URL');
         }
-        return true;
+        return value;
       }, 'URL validation'),
     }),
   }), createCard);
 router.route('/cards/:cardId/likes')
   .put(auth, celebrate({
     params: Joi.object().keys({
-      cardId: Joi.string().length(24),
+      cardId: Joi.string().length(24).custom((value) => {
+        if (!ObjectId.isValid(value)) {
+          throw new Error('Invalid _id');
+        }
+        return value;
+      }, 'ObjectId validation'),
     }),
   }), likeCard)
   .delete(auth, celebrate({
     params: Joi.object().keys({
-      cardId: Joi.string().length(24),
+      cardId: Joi.string().length(24).custom((value) => {
+        if (!ObjectId.isValid(value)) {
+          throw new Error('Invalid card id');
+        }
+        return value;
+      }, 'ObjectId validation'),
     }),
   }), dislikeCard);
 router.delete('/cards/:_id', auth, celebrate({

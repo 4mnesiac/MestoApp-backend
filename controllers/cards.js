@@ -2,7 +2,7 @@ const path = require('path');
 // eslint-disable-next-line import/no-dynamic-require
 const Card = require(path.join('..', 'models', 'card'));
 const NotFoundError = require('../errors/not-found-error');
-const AuthError = require('../errors/auth-error');
+const ForbiddenError = require('../errors/forbidden-error');
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params)
@@ -11,9 +11,7 @@ module.exports.deleteCard = (req, res, next) => {
         throw new NotFoundError('Карточки с указанным id не существует');
       }
       if (card.owner.toString() !== req.user._id) {
-        const authError = new AuthError('Недостаточно прав');
-        authError.statusCode = 403;
-        throw authError;
+        throw new ForbiddenError('Недостаточно прав');
       }
       return Card.findByIdAndRemove(req.params._id)
         .then(() => {
