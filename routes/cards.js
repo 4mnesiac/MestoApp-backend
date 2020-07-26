@@ -50,7 +50,12 @@ router.route('/cards/:cardId/likes')
   }), dislikeCard);
 router.delete('/cards/:_id', auth, celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().length(24),
+    _id: Joi.string().length(24).custom((value) => {
+      if (!ObjectId.isValid(value)) {
+        throw new Error('Invalid card id');
+      }
+      return value;
+    }, 'ObjectId validation'),
   }),
 }), deleteCard);
 
