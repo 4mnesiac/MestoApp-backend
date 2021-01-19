@@ -35,4 +35,8 @@
     "eslint-plugin-import": "^2.21.2",
     "nodemon": "^2.0.4"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 14034e3 (update README, fixed package vulvulnerabilities)
